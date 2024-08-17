@@ -1,0 +1,5 @@
+<form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="file_id" value="{{ file_id }}">
+    <button type="submit">Edit</button>
+</form>

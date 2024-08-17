@@ -1,6 +1,24 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.http import HttpResponse
+from .models import ExcelFile
+import pandas as pd
 
-def display_excel(request):
-    file_path = './files/MARKETING_REPORT.xlsx'
-    table_html = read_excel_to_html(file_path)
-    return render(request, 'myapp/display_excel.html', {'table_html': table_html})
+def read_excel(request):
+    if request.method == 'POST':
+        file = request.FILES['file']
+        excel_file = ExcelFile(file=file)
+        excel_file.save()
+        df = pd.read_excel(file)
+        return render(request, 'excel.html', {'df': df})
+    return render(request, 'upload.html')
+
+def edit_excel(request):
+    if request.method == 'POST':
+        file_id = request.POST['file_id']
+        excel_file = ExcelFile.objects.get(id=file_id)
+        df = pd.read_excel(excel_file.file)
+        # ویرایش فایل اکسل
+        df['column_name'] = 'new_value'
+        df.to_excel(excel_file.file, index=False)
+        return redirect('read_excel')
+    return render(request, 'edit.html')
