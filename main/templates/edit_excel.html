@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ویرایش فایل اکسل</title>
+</head>
+<body>
+    <h1>ویرایش فایل اکسل</h1>
+    <form method="post">
+        {% csrf_token %}
+        <textarea name="content">{{ html }}</textarea>
+        <button type="submit">ذخیره تغییرات</button>
+    </form>
+</body>
+</html>

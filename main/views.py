@@ -3,22 +3,28 @@ from django.http import HttpResponse
 from .models import ExcelFile
 import pandas as pd
 
-def read_excel(request):
+def index(request):
+    return render(request, 'index.html')
+
+def upload_excel(request):
     if request.method == 'POST':
-        file = request.FILES['file']
-        excel_file = ExcelFile(file=file)
-        excel_file.save()
-        df = pd.read_excel(file)
-        return render(request, 'excel.html', {'df': df})
+        file = request.FILES.get('file')
+        if file:
+            df = pd.read_excel(file)
+            html = df.to_html()
+            return render(request, 'excel.html', {'html': html})
+        else:
+            return HttpResponse('فایلی ارسال نشده است')
     return render(request, 'upload.html')
+
 
 def edit_excel(request):
     if request.method == 'POST':
-        file_id = request.POST['file_id']
-        excel_file = ExcelFile.objects.get(id=file_id)
-        df = pd.read_excel(excel_file.file)
-        # ویرایش فایل اکسل
-        df['column_name'] = 'new_value'
-        df.to_excel(excel_file.file, index=False)
-        return redirect('read_excel')
-    return render(request, 'edit.html')
+        content = request.POST.get('content')
+        if content:
+            df = pd.read_html(content)[0]
+            df.to_excel('output.xlsx', index=False)
+            return HttpResponse('فایل اکسل ویرایش شده با موفقیت ذخیره شد.')
+        else:
+            return HttpResponse('محتوای فایل اکسل خالی است.')
+    return render(request, 'edit_excel.html')
